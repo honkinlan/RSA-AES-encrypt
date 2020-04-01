@@ -1,6 +1,9 @@
 <template>
   <div class="hello">
     <h1>{{ msg }}</h1>
+    <div class="margin">
+      <iframe src="https://ghbtns.com/github-btn.html?user=honkinaln&repo=RSA-AES-encrypt&type=star&count=true" frameborder="0" scrolling="0" width="160px" height="30px"></iframe>
+    </div>
     <ul>
       <li>输入需要加密的数据：</li>
       <li class="flex">
