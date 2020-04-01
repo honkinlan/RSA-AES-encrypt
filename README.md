@@ -3,7 +3,7 @@ RSA和AES的加验签和加解密demo，可用于敏感数据的请求签名和�
 ## Web 前端密码加密是否有意义？
 之前在v2ex看到过大家的讨论，反正各有各的说法，后来在知乎也看到了一样的讨论，其中有个大佬的回复让我印象很深：*** 既然市面上大部分锁都可以在20分钟内撬开，那门上装锁是否还有意义？ *** 这个比喻很形象了，如果对数据传输的安全有要求的话，有加密总比没有要强把...
 ## demo演示
-![demo](https://img.lanhongjin.com/encryptdemo.gif "demo")
+![demo](https://img.lanhongjin.com/encrypt_demo.gif "demo")
 [preview][5]
 ## RSA公私钥说明
 *非对称加密算法需要两个密钥：公开密钥（publickey:简称公钥）和私有密钥（privatekey:简称私钥）。公钥与私钥是一对，如果用公钥对数据进行加密，只有用对应的私钥才能解密。* RSA是最常用的非对称加密算法。
