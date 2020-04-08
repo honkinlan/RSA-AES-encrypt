@@ -35,10 +35,10 @@ function createString(length) {
 }
 /**
  * 生成 AESKEY
- * @return {String} 返回生成的 128位 AESKEY
+ * @return {String} 返回生成的 128位 AESKEY 1byte = 8bits 这里128位实际也是16个字节
  */
 function createAesKey() {
-	return createString(128);
+	return createString(16);
 }
 
 /**
@@ -59,11 +59,11 @@ function createAesIv() {
  * @return {String} 返回加密字段
  */
 function encryptAES(data, aesKey, iv) {
-	// console.log( aesKey, iv)
 	data = CryptoJS.enc.Utf8.parse(parseToString(data));
 	// CryptoJS可以从Base64、Latin1或Hex等编码格式转换为WordArray对象，反之亦然
 	aesKey = CryptoJS.enc.Base64.parse(aesKey);
-	iv = CryptoJS.enc.Base64.parse(iv);
+	//@bugfixed: iv向量的解析改为Utf8，修复后端解密后乱码的问题...
+	iv = CryptoJS.enc.Utf8.parse(iv);
 	const encrypted = CryptoJS.AES.encrypt(data, aesKey, {
 		iv: iv
 	});
@@ -81,7 +81,7 @@ function encryptAES(data, aesKey, iv) {
 function decryptAES(data, aesKey, iv) {
 	// data = CryptoJS.enc.Utf8.parse(data);
 	aesKey = CryptoJS.enc.Base64.parse(aesKey);
-	iv = CryptoJS.enc.Base64.parse(iv);
+	iv = CryptoJS.enc.Utf8.parse(iv);
 	var decrypt = CryptoJS.AES.decrypt(data, aesKey, {
 		iv: iv
 	});

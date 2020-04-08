@@ -9,9 +9,11 @@
   },
   "dependencies": {
     "axios": "^0.19.2",
+    "babel-preset-env": "^1.7.0",
     "core-js": "^3.6.4",
     "crypto-js": "^4.0.0",
     "css-loader": "^3.4.2",
+    "js-base64": "^2.5.2",
     "jsencrypt": "^3.0.0-rc.1",
     "less": "^3.11.1",
     "less-loader": "^5.0.0",

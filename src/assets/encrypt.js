@@ -1,6 +1,8 @@
 import AES from './AES.js'
 import RSA from './RSA.js'
 import MD5 from 'crypto-js/md5';
+import {Base64} from 'js-base64'
+
 export default class Encrypt {
 	constructor(params, deviceInfo) {
 		this.options.encryptedData.body = params;
@@ -66,8 +68,9 @@ export default class Encrypt {
 				...this.options.encryptedData.body
 			}
 		}
-		// 1. 随机生成AES密钥key(128位，base64编码)，向量iv(16位)
-		const aesKey = AES.createAesKey();
+		// 1. 随机生成AES密钥key(base64编码)，向量iv(16位)
+		const key = AES.createAesKey()
+		const aesKey = Base64.encode(key)
 		const iv = AES.createAesIv();
 		// 2. 使用key和iv对未加密的encryptedData的json字符串进行AES加密，得到encryptedData
 		// encryptedData：
