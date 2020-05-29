@@ -33,15 +33,14 @@ export default class Decrypt {
 	isPass(signData, signature) {
 		const data = {
 			encryptedData: MD5(this.decrypted),
+			clientID: signData.clientID,
 			sequenceNo: signData.sequenceNo,
 			timestamp: signData.timestamp,
 			version: signData.version
 		}
-		// 响应报文的明文签名
-		const responseSign = RSA.getKeyVal(data);
-		// 解密后的明文签名
-		const decryptSign = RSA.publicDecrypt(signature);
-		// console.log(decryptSign)
-		return responseSign === decryptSign
+		// 响应报文内待签名的明文数据
+		const responseSignStr = RSA.getKeyVal(data);
+		const isValid = RSA.signVerify(responseSignStr, signature)
+		return isValid
 	}
 }

@@ -1,8 +1,10 @@
 import JSEncrypt from 'jsencrypt';
+import {KJUR, hextob64, b64tohex} from 'jsrsasign'
 // Create the encryption object and set the key.
 var cryptor = new JSEncrypt();
 // -----BEGIN RSA PRIVATE KEY-----
-const PRIVATE_KEY = `MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDySf3VHbk81ukT
+const PRIVATE_KEY = `-----BEGIN PRIVATE KEY-----
+MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDySf3VHbk81ukT
 7PL/lNuqVHgFL2muW9mCCF6DqwwfporjstLg36BR/A87bzzferPuMVqCpSpJAXu5
 9CuRp5lCB3yANF839CHmslOqwmlFeVoVvnuitdcVh9qvDmn1Ta2G4d47KL7ZVNWa
 8RMulWx/ympdMnOJIg493YgMM2YPrW/Rh3+FRr8sqrkimWF+bnlzGoQMcj8nSS+J
@@ -27,17 +29,20 @@ D8iNxWlyW87MtGKFfj9J+Tls4B+DDD+XnQ1GihRZkRIgtsM6XH+j4h7TbyKpZmj5
 J4qOvSak6i6RM28cQnWzuxDIF0KQeIqYJLLq/2KCKQKBgGmxU+ac7trUh3yAuY1t
 DoJ1eicKAXCcYIGVs9+Me4WeeyTvZBxeqSYaone0G08JQT9xtCHSRoZPXnb0PL8U
 6177XZfdqp6eFDh5kOXsyC9LQjEqYDFgQzRMwWY+yfpL6/o8Ibf5o3dS6me+pvU0
-dk9pTm2dDpgZsz5d4tVkCVMp`
+dk9pTm2dDpgZsz5d4tVkCVMp
+-----END PRIVATE KEY-----`
 // -----END RSA PRIVATE KEY-----
 
 // -----BEGIN PUBLIC KEY-----
-const PUBLIC_KEY = `MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA8kn91R25PNbpE+zy/5Tb
+const PUBLIC_KEY = `-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA8kn91R25PNbpE+zy/5Tb
 qlR4BS9prlvZggheg6sMH6aK47LS4N+gUfwPO28833qz7jFagqUqSQF7ufQrkaeZ
 Qgd8gDRfN/Qh5rJTqsJpRXlaFb57orXXFYfarw5p9U2thuHeOyi+2VTVmvETLpVs
 f8pqXTJziSIOPd2IDDNmD61v0Yd/hUa/LKq5Iplhfm55cxqEDHI/J0kviSqzS7WC
 CeMd+qNTJfElKM9M7lzqC9zuPb5wPrZ+iLYj3HblfWuje4R0jg/XxC+MkmPOMaVQ
 3fHiuq51LVKYkgDSrsSIzxjZOs5HITy/i4aN4kzs9G2duYZqxrcYNCcqjZyVMDFr
-wwIDAQAB`
+wwIDAQAB
+-----END PUBLIC KEY-----`
 
 // -----END PUBLIC KEY-----
 
@@ -70,7 +75,7 @@ function privateDecrypt(str, privateKey = PRIVATE_KEY) {
  * @param {String} privateKey
  * @return {String} 解密后数据
  */
-function publicDecrypt(str, publicKey = PRIVATE_KEY) {
+function publicDecrypt(str, publicKey = PUBLIC_KEY) {
 	cryptor.setPublicKey(publicKey);
 	return cryptor.decrypt(str)
 }
@@ -95,11 +100,38 @@ function publicEncrypt(str, publicKey = PUBLIC_KEY) {
 	cryptor.setPublicKey(publicKey);
 	return cryptor.encrypt(str);
 }
+/**
+ * 使用jsrsasign签名
+ * https://kjur.github.io/jsrsasign/api/symbols/KJUR.crypto.Signature.html#constructor
+ * @param {String} str 需要加密的字符串
+ * @return {String} str 签名成功的字符串
+ * **/
+function signSHA256 (str){
+   // RSA signature generation
+   let sig = new KJUR.crypto.Signature({alg:"SHA256withRSA"});
+   sig.init(PRIVATE_KEY);
+   sig.updateString(str);
+   return hextob64(sig.sign());
+}
+/**
+ * @param {String} str 未加签的明文
+ * @param {String} signStr 待验证的签名
+ * @return {Boolean} 签名验证是否成功
+ * **/
+function signVerify (str, signStr) {
+	let sig = new KJUR.crypto.Signature({alg:"SHA256withRSA"});
+	sig.init(PUBLIC_KEY);
+    sig.updateString(str);
+	const isValid = sig.verify(b64tohex(signStr));
+	return isValid
+}
 
 export default {
 	getKeyVal,
 	privateDecrypt,
 	privateEncrypt,
 	publicEncrypt,
-	publicDecrypt
+	publicDecrypt,
+	signSHA256,
+	signVerify
 }

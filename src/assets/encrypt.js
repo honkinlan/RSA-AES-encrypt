@@ -22,16 +22,13 @@ export default class Encrypt {
 		// encryptedData 为以下JSON格式的加密数据
 		encryptedData: {
 			head: {
-				// 设备唯一标识符
 				deviceID: '',
-				// 设备名称:my iphone
 				deviceName: '',
-				// 系统类型:Android、iOS
 				osType: '',
-				// 系统版本:13.3等
 				osVersion: '',
-				// 设备型号:华为mate30
-				phoneType: ''
+				phoneType: '',
+				clientSecret: '',
+				subscriptionID: ''
 			},
 			// 业务请求参数
 			body: ''
@@ -41,40 +38,31 @@ export default class Encrypt {
 	 * 签名
 	 * @return {String} 签名字符串
 	 * **/
-	sign(signData) {
+	sign(jsonStr) {
 		// 1.将加密前的encryptedData的json字符串进行md5操作，
 		// 2.再将报文中timestamp等字段以key=value的形式按照key名称进行升序排序，并以&拼接字符串
 		// 3.将拼接后的字符串进行RSA私钥加密后得到signature签名字段
 		// 注意前后端加签验签的字段是否一致的
-		const obj = {
-			encryptedData: MD5(JSON.stringify(this.options.encryptedData)),
+		const signData = {
+			clientID: '',
+			encryptedData: MD5(jsonStr),
 			sequenceNo: this.options.sequenceNo,
 			timestamp: this.options.timestamp,
 			version: this.options.version
 		}
-		const data = signData || obj;
-		const str = RSA.getKeyVal(data);
-		return RSA.privateEncrypt(str)
+		const str = RSA.getKeyVal(signData);
+		return RSA.signSHA256(str)
 	}
 
 	// 获取encryptedData 和 encryptedKey
-	getEncryptedData() {
-		// origin data before encrypt
-		const baseData = {
-			head: {
-				...this.options.encryptedData.head
-			},
-			body: {
-				...this.options.encryptedData.body
-			}
-		}
+	getEncryptedData(jsonStr) {
 		// 1. 随机生成AES密钥key(base64编码)，向量iv(16位)
 		const key = AES.createAesKey()
 		const aesKey = Base64.encode(key)
 		const iv = AES.createAesIv();
 		// 2. 使用key和iv对未加密的encryptedData的json字符串进行AES加密，得到encryptedData
 		// encryptedData：
-		const encryptedData = AES.encryptAES(baseData, aesKey, iv)
+		const encryptedData = AES.encryptAES(jsonStr, aesKey, iv)
 		// 3.将key和iv组成的json字符串进行RSA公钥加密
 		// encryptedKey：
 		const objMap = {
@@ -94,12 +82,13 @@ export default class Encrypt {
 	 * 生成加密后的数据
 	 * **/
 	generateData() {
-		const encrypted = this.getEncryptedData()
+		const jsonStr = JSON.stringify(this.options.encryptedData)
+		const encrypted = this.getEncryptedData(jsonStr)
 		return {
 			sequenceNo: this.options.sequenceNo,
 			timestamp: this.options.timestamp,
 			version: this.options.version,
-			signature: this.sign(),
+			signature: this.sign(jsonStr),
 			encryptedKey: encrypted.encryptedKey,
 			encryptedData: encrypted.encryptedData
 		}

@@ -101,6 +101,7 @@ export default {
       // 是否通过签名
       const ispass = decryptor.isPass(
         {
+          clientID: '',
           sequenceNo: this.encrypted.sequenceNo,
           timestamp: this.encrypted.timestamp,
           version: this.encrypted.version
@@ -118,6 +119,8 @@ export default {
         } catch (err) {
           console.log(err);
         }
+      } else {
+        alert('验证签名失败')
       }
     },
     /**
